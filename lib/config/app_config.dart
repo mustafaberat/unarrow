@@ -1,8 +1,8 @@
 abstract final class AppIdentity {
-  static const String appName = 'Arrow Out';
+  static const String appName = 'Unarrow';
   static const String developer = 'ARU Soft';
   static const String packageId = 'com.arusoft.arrowout';
-  static const String privacyUrl = 'https://arusoft.vercel.app/privacy/arrow-out';
+  static const String privacyUrl = 'https://arusoft.vercel.app/privacy/unarrow';
 }
 
 abstract final class AppRoutes {

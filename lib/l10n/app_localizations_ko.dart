@@ -10,7 +10,7 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
-  String get appTitle => 'Arrow Out';
+  String get appTitle => 'Unarrow';
 
   @override
   String get homeTagline => '화살표를 모두 빼세요.';

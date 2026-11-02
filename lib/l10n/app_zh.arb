@@ -1,6 +1,6 @@
 {
   "@@locale": "zh",
-  "appTitle": "Arrow Out",
+  "appTitle": "Unarrow",
   "homeTagline": "清掉所有箭头。",
   "play": "开始",
   "levelLabel": "第 {level} 关",

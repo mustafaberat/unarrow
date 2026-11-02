@@ -1,6 +1,8 @@
-# Arrow Out — Firebase Analytics
+# Unarrow — Firebase Analytics
 
-Android paket adı: `com.arusoft.arrowout`. Firebase proje kimliği: `arusoft-arrow-out`. Görünen ad: Arrow Out.
+Mağaza adı: Unarrow: Logic Puzzle. Uygulama içi kısa ad: Unarrow.
+
+Android paket adı: `com.arusoft.arrowout`. Firebase proje kimliği: `arusoft-unarrow`. Görünen ad: Unarrow.
 
 `google-services.json` yokken oyun açılır. Analytics sessizce kapalı kalır. Sahte dosya yazılmaz.
 
@@ -15,7 +17,7 @@ Otomatik GA4 olayları (`first_open`, `session_start`, `user_engagement` …) ay
 ### 1.1 Proje ve Android uygulaması
 
 1. [Firebase Console](https://console.firebase.google.com/) → **Add project**.
-2. Proje kimliği: `arusoft-arrow-out`. Görünen ad: `Arrow Out`.
+2. Proje kimliği: `arusoft-unarrow`. Görünen ad: `Unarrow`.
 3. Google Analytics’i aç ve bir GA4 property bağla.
 4. **Add app → Android**. Paket adı: `com.arusoft.arrowout`.
 5. İndirilen `google-services.json` dosyasını `android/app/` altına koy. Gradle eklentisi dosya varsa uygulanır.

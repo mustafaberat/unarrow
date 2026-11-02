@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Arrow Out';
+  String get appTitle => 'Unarrow';
 
   @override
   String get homeTagline => 'Clear every arrow.';

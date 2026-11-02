@@ -1,0 +1,16 @@
+Unarrow — Google Play
+Paket: com.arusoft.arrowout
+Geliştirici: ARU Soft
+
+=== Uygulama adı (mağaza, 30 karakter) ===
+Unarrow: Logic Puzzle
+
+=== Kısa ad (başlatıcı ve uygulama içi) ===
+Unarrow
+
+=== Kısa açıklama (80 karakter) ===
+EN: Slide every arrow off the board. A calm logic puzzle.
+TR: Bütün okları tahtadan çıkar. Sakin bir mantık bulmacası.
+
+=== Gizlilik politikası URL ===
+https://arusoft.vercel.app/privacy/unarrow

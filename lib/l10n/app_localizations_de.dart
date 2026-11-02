@@ -10,7 +10,7 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get appTitle => 'Arrow Out';
+  String get appTitle => 'Unarrow';
 
   @override
   String get homeTagline => 'Nimm alle Pfeile weg.';

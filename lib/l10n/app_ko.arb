@@ -1,6 +1,6 @@
 {
   "@@locale": "ko",
-  "appTitle": "Arrow Out",
+  "appTitle": "Unarrow",
   "homeTagline": "화살표를 모두 빼세요.",
   "play": "플레이",
   "levelLabel": "레벨 {level}",

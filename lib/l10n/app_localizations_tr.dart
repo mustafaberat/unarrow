@@ -10,7 +10,7 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
-  String get appTitle => 'Arrow Out';
+  String get appTitle => 'Unarrow';
 
   @override
   String get homeTagline => 'Bütün okları çıkar.';

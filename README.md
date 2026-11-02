@@ -1,9 +1,9 @@
-# Arrow Out
+# Unarrow: Logic Puzzle
 
 Calm logic puzzle. Tap an arrow and its whole shape slides off in the direction it points. A blocked lane costs a heart. Three hearts, no timer. Portrait only.
 
 Package: `com.arusoft.arrowout`  
-Firebase project id: `arusoft-arrow-out`
+Firebase project id: `arusoft-unarrow`
 
 ```bash
 flutter test

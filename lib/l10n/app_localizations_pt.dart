@@ -10,7 +10,7 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appTitle => 'Arrow Out';
+  String get appTitle => 'Unarrow';
 
   @override
   String get homeTagline => 'Tire todas as flechas.';
