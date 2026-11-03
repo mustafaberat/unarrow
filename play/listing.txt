@@ -1,5 +1,5 @@
 Unarrow — Google Play
-Paket: com.arusoft.arrowout
+Paket: com.arusoft.unarrow
 Geliştirici: ARU Soft
 
 === Uygulama adı (mağaza, 30 karakter) ===

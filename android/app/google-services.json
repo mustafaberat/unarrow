@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "293954434120",
+    "project_id": "arusoft-unarrow",
+    "storage_bucket": "arusoft-unarrow.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293954434120:android:9ed504bcce80a5ba75547d",
+        "android_client_info": {
+          "package_name": "com.arusoft.unarrow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcLpr6unk7eKsnEMl-9pqN_35wH9upKfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

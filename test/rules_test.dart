@@ -1,6 +1,6 @@
-import 'package:arrow_out/game/levels.dart';
-import 'package:arrow_out/game/model.dart';
-import 'package:arrow_out/game/rules.dart';
+import 'package:unarrow/game/levels.dart';
+import 'package:unarrow/game/model.dart';
+import 'package:unarrow/game/rules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

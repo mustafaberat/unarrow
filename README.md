@@ -2,7 +2,7 @@
 
 Calm logic puzzle. Tap an arrow and its whole shape slides off in the direction it points. A blocked lane costs a heart. Three hearts, no timer. Portrait only.
 
-Package: `com.arusoft.arrowout`  
+Package: `com.arusoft.unarrow`  
 Firebase project id: `arusoft-unarrow`
 
 ```bash

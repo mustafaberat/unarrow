@@ -1,4 +1,4 @@
-name: arrow_out
+name: unarrow
 description: Clear every arrow. A calm logic puzzle.
 publish_to: 'none'
 # vX.Y.Z+CODE — X Play yüklemesi, Y stable, Z her commit.

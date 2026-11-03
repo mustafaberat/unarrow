@@ -2,9 +2,9 @@
 
 Mağaza adı: Unarrow: Logic Puzzle. Uygulama içi kısa ad: Unarrow.
 
-Android paket adı: `com.arusoft.arrowout`. Firebase proje kimliği: `arusoft-unarrow`. Görünen ad: Unarrow.
+Android paket adı: `com.arusoft.unarrow`. Firebase proje kimliği: `arusoft-unarrow`. Görünen ad: Unarrow.
 
-`google-services.json` yokken oyun açılır. Analytics sessizce kapalı kalır. Sahte dosya yazılmaz.
+`google-services.json` `android/app/` altında. Firebase’den indirildi. Dosya silinirse oyun yine açılır ve Analytics sessizce kapanır. Unarrow’un iOS hedefi yok.
 
 Ekranlar `FirebaseAnalytics` çağırmaz. Olaylar `lib/analytics/analytics_service.dart` üzerinden gider.
 
@@ -19,8 +19,8 @@ Otomatik GA4 olayları (`first_open`, `session_start`, `user_engagement` …) ay
 1. [Firebase Console](https://console.firebase.google.com/) → **Add project**.
 2. Proje kimliği: `arusoft-unarrow`. Görünen ad: `Unarrow`.
 3. Google Analytics’i aç ve bir GA4 property bağla.
-4. **Add app → Android**. Paket adı: `com.arusoft.arrowout`.
-5. İndirilen `google-services.json` dosyasını `android/app/` altına koy. Gradle eklentisi dosya varsa uygulanır.
+4. **Add app → Android**. Paket adı: `com.arusoft.unarrow`.
+5. `google-services.json` `android/app/` altında. Gradle eklentisi dosya varsa uygulanır.
 
 ### 1.2 Özel tanımlar
 
@@ -62,7 +62,7 @@ Kod bunu `setUserProperty` ile yazar. Ayrı bir kullanıcı özelliği daha yok.
 ### 1.3 DebugView
 
 ```bash
-adb shell setprop debug.firebase.analytics.app com.arusoft.arrowout
+adb shell setprop debug.firebase.analytics.app com.arusoft.unarrow
 ```
 
 Kapatmak:
