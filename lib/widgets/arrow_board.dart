@@ -126,22 +126,11 @@ class ArrowBoard extends StatelessWidget {
 
 int? hitArrow(Offset pos, double cell, PuzzleLevel level, Set<int> removed) {
   int? best;
-  var bestDist = cell * 0.52;
   for (final arrow in level.arrows) {
     if (removed.contains(arrow.id)) continue;
-    final points = _points(arrow, cell, Offset.zero);
-    for (var i = 0; i < points.length - 1; i++) {
-      final dist = _segmentDistance(pos, points[i], points[i + 1]);
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = arrow.id;
-      }
-    }
-    final tip = points.last + _unit(arrow.dir) * cell * 0.46;
-    final tipDist = (tip - pos).distance;
-    if (tipDist < bestDist) {
-      bestDist = tipDist;
-      best = arrow.id;
+    for (final spot in arrow.cells) {
+      final rect = Rect.fromLTWH(spot.x * cell, spot.y * cell, cell, cell);
+      if (rect.contains(pos)) best = arrow.id;
     }
   }
   return best;
@@ -179,32 +168,37 @@ class ArrowBoardPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final cell = size.width / level.cols;
-    final dot = Paint()..color = AppColors.dot;
-    for (var y = 0; y < level.rows; y++) {
-      for (var x = 0; x < level.cols; x++) {
-        canvas.drawCircle(Offset((x + 0.5) * cell, (y + 0.5) * cell), math.max(1.4, cell * 0.045), dot);
-      }
-    }
-
-    final arrows = [...level.arrows]..sort((a, b) {
-      final aActive = a.id == exitingId || a.id == bumpingId ? 1 : 0;
-      final bActive = b.id == exitingId || b.id == bumpingId ? 1 : 0;
-      return aActive.compareTo(bActive);
-    });
+    final arrows = [...level.arrows]
+      ..sort((a, b) {
+        final aActive = a.id == exitingId || a.id == bumpingId ? 1 : 0;
+        final bActive = b.id == exitingId || b.id == bumpingId ? 1 : 0;
+        return aActive.compareTo(bActive);
+      });
     for (final arrow in arrows) {
       final exiting = arrow.id == exitingId;
       if (removed.contains(arrow.id) && !exiting) continue;
       final slide = _slide(arrow, cell);
       final color = _color(arrow);
       final opacity = exiting ? (exitT < 0.72 ? 1.0 : (1 - (exitT - 0.72) / 0.28).clamp(0.0, 1.0)) : 1.0;
-      _drawArrow(canvas, arrow, cell, slide, color.withValues(alpha: opacity));
+      if (arrow.id == hintId) {
+        final center = _centroid(arrow, cell, slide);
+        canvas.save();
+        final scale = 1 + 0.045 * hintT;
+        canvas.translate(center.dx, center.dy);
+        canvas.scale(scale);
+        canvas.translate(-center.dx, -center.dy);
+        _drawClayPiece(canvas, arrow, cell, slide, color, opacity, emphasize: true);
+        canvas.restore();
+      } else {
+        _drawClayPiece(canvas, arrow, cell, slide, color, opacity, emphasize: false);
+      }
     }
 
     final coach = coachCell;
     if (coach != null) {
       final center = Offset((coach.x + 0.5) * cell, (coach.y + 0.5) * cell);
       final radius = cell * (coachPressed ? 0.28 : 0.34);
-      canvas.drawCircle(center, radius, Paint()..color = const Color(0x66FFFFFF));
+      canvas.drawCircle(center, radius, Paint()..color = const Color(0x66FFF8F0));
       canvas.drawCircle(
         center,
         radius,
@@ -228,89 +222,166 @@ class ArrowBoardPainter extends CustomPainter {
   }
 
   Color _color(ArrowPiece arrow) {
+    final base = AppColors.clayFor(arrow.id);
     if (arrow.id == bumpingId) {
-      return Color.lerp(AppColors.ink, AppColors.danger, math.sin(math.pi * bumpT))!;
+      return Color.lerp(base, AppColors.danger, math.sin(math.pi * bumpT))!;
     }
     if (arrow.id == hintId) {
-      return Color.lerp(AppColors.ink, AppColors.blue, 0.45 + 0.55 * hintT)!;
+      return Color.lerp(base, AppColors.blue, 0.28 + 0.42 * hintT)!;
     }
-    return AppColors.ink;
+    return base;
   }
 
   @override
   bool shouldRepaint(covariant ArrowBoardPainter oldDelegate) => true;
 }
 
-void _drawArrow(Canvas canvas, ArrowPiece arrow, double cell, Offset slide, Color color) {
-  final points = _points(arrow, cell, slide);
-  final stroke = Paint()
-    ..color = color
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = cell * 0.36
-    ..strokeCap = StrokeCap.round
-    ..strokeJoin = StrokeJoin.round;
-  final shaft = _shaft(points, arrow.dir, arrow.alt, cell);
-  if (shaft.length == 1) {
-    canvas.drawCircle(shaft.single, cell * 0.08, Paint()..color = color);
-  } else {
-    final path = Path()..moveTo(shaft.first.dx, shaft.first.dy);
-    for (final point in shaft.skip(1)) {
-      path.lineTo(point.dx, point.dy);
+void _drawClayPiece(
+  Canvas canvas,
+  ArrowPiece arrow,
+  double cell,
+  Offset slide,
+  Color color,
+  double opacity, {
+  required bool emphasize,
+}) {
+  final inset = cell * 0.09;
+  for (final spot in arrow.cells) {
+    final rect = Rect.fromLTWH(
+      spot.x * cell + inset + slide.dx,
+      spot.y * cell + inset + slide.dy,
+      cell - inset * 2,
+      cell - inset * 2,
+    );
+    _drawClayTile(canvas, rect, color, opacity);
+    if (emphasize) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect.deflate(cell * 0.02), Radius.circular(rect.shortestSide * 0.30)),
+        Paint()
+          ..color = AppColors.blue.withValues(alpha: 0.55 * opacity)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = cell * 0.045,
+      );
     }
-    canvas.drawPath(path, stroke);
   }
-  _drawHead(canvas, points.last, arrow.dir, cell, color);
+  _drawClayGlyph(canvas, _cellCenter(arrow.head, cell, slide), arrow.dir, cell, opacity);
   final alt = arrow.alt;
-  if (alt != null) _drawHead(canvas, points.first, alt, cell, color);
-}
-
-List<Offset> _shaft(List<Offset> points, Direction dir, Direction? alt, double cell) {
-  if (points.length == 1) {
-    final back = points.single - _unit(dir) * cell * 0.2;
-    return [back, points.single - _unit(dir) * cell * 0.02];
+  if (alt != null && (arrow.cells.length > 1 || alt != arrow.dir)) {
+    _drawClayGlyph(canvas, _cellCenter(arrow.tail, cell, slide), alt, cell, opacity);
   }
-  final copy = [...points];
-  copy[copy.length - 1] = _trim(copy[copy.length - 2], copy.last, cell * 0.2);
-  if (alt != null) {
-    copy[0] = _trim(copy[1], copy.first, cell * 0.2);
-  }
-  return copy;
 }
 
-Offset _trim(Offset from, Offset end, double cut) {
-  final delta = end - from;
-  final len = delta.distance;
-  if (len <= 1) return end;
-  return end - delta / len * math.min(cut, len * 0.45);
+void _drawClayTile(Canvas canvas, Rect rect, Color color, double opacity) {
+  final radius = Radius.circular(rect.shortestSide * 0.30);
+  final tile = RRect.fromRectAndRadius(rect, radius);
+  canvas.drawRRect(
+    tile.shift(Offset(rect.width * 0.055, rect.height * 0.085)),
+    Paint()
+      ..color = const Color(0xFF5C4636).withValues(alpha: 0.22 * opacity)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, rect.shortestSide * 0.09),
+  );
+  canvas.drawRRect(
+    tile,
+    Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(color, Colors.white, 0.34)!.withValues(alpha: opacity),
+          color.withValues(alpha: opacity),
+          Color.lerp(color, const Color(0xFF3A2A22), 0.24)!.withValues(alpha: opacity),
+        ],
+        stops: const [0.0, 0.42, 1.0],
+      ).createShader(rect),
+  );
+  canvas.save();
+  canvas.clipRRect(tile);
+  canvas.drawOval(
+    Rect.fromCenter(
+      center: rect.center + Offset(-rect.width * 0.22, -rect.height * 0.26),
+      width: rect.width * 0.46,
+      height: rect.height * 0.22,
+    ),
+    Paint()..color = Colors.white.withValues(alpha: 0.40 * opacity),
+  );
+  canvas.restore();
 }
 
-void _drawHead(Canvas canvas, Offset at, Direction dir, double cell, Color color) {
-  final forward = _unit(dir);
-  final side = Offset(-forward.dy, forward.dx);
-  final tip = at + forward * cell * 0.48;
-  final base = at + forward * cell * 0.05;
-  final wing = cell * 0.27;
-  final path = Path()
-    ..moveTo(tip.dx, tip.dy)
-    ..lineTo((base + side * wing).dx, (base + side * wing).dy)
-    ..lineTo((base - side * wing).dx, (base - side * wing).dy)
+void _drawClayGlyph(Canvas canvas, Offset center, Direction dir, double cell, double opacity) {
+  canvas.save();
+  canvas.translate(center.dx, center.dy);
+  canvas.rotate(switch (dir) {
+    Direction.right => 0.0,
+    Direction.down => math.pi / 2,
+    Direction.left => math.pi,
+    Direction.up => -math.pi / 2,
+  });
+  final width = cell * 0.56;
+  final height = cell * 0.38;
+  final path = _clayArrowPath(width, height);
+  canvas.drawPath(
+    path.shift(Offset(cell * 0.012, cell * 0.022)),
+    Paint()
+      ..color = const Color(0xFF5C4636).withValues(alpha: 0.28 * opacity)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, cell * 0.03),
+  );
+  final bounds = Rect.fromCenter(center: Offset.zero, width: width, height: height);
+  canvas.drawPath(
+    path,
+    Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          const Color(0xFFFFFFFF).withValues(alpha: opacity),
+          AppColors.arrow.withValues(alpha: opacity),
+          const Color(0xFFE7D5C4).withValues(alpha: opacity),
+        ],
+        stops: const [0.0, 0.48, 1.0],
+      ).createShader(bounds),
+  );
+  canvas.drawPath(
+    path,
+    Paint()
+      ..color = AppColors.arrow.withValues(alpha: opacity)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = cell * 0.055
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round,
+  );
+  canvas.restore();
+}
+
+Path _clayArrowPath(double width, double height) {
+  final shaft = height * 0.46;
+  final head = width * 0.40;
+  final left = -width / 2;
+  final right = width / 2;
+  final neck = right - head;
+  return Path()
+    ..moveTo(left, -shaft / 2)
+    ..lineTo(neck, -shaft / 2)
+    ..lineTo(neck, -height / 2)
+    ..lineTo(right, 0)
+    ..lineTo(neck, height / 2)
+    ..lineTo(neck, shaft / 2)
+    ..lineTo(left, shaft / 2)
     ..close();
-  canvas.drawPath(path, Paint()..color = color);
 }
 
-List<Offset> _points(ArrowPiece arrow, double cell, Offset slide) {
-  return [
-    for (final spot in arrow.cells) Offset((spot.x + 0.5) * cell, (spot.y + 0.5) * cell) + slide,
-  ];
+Offset _cellCenter(Cell spot, double cell, Offset slide) {
+  return Offset((spot.x + 0.5) * cell, (spot.y + 0.5) * cell) + slide;
+}
+
+Offset _centroid(ArrowPiece arrow, double cell, Offset slide) {
+  var x = 0.0;
+  var y = 0.0;
+  for (final spot in arrow.cells) {
+    x += spot.x + 0.5;
+    y += spot.y + 0.5;
+  }
+  final n = arrow.cells.length;
+  return Offset(x / n * cell, y / n * cell) + slide;
 }
 
 Offset _unit(Direction dir) => Offset(dir.dx.toDouble(), dir.dy.toDouble());
-
-double _segmentDistance(Offset point, Offset a, Offset b) {
-  final ab = b - a;
-  final length2 = ab.dx * ab.dx + ab.dy * ab.dy;
-  if (length2 == 0) return (point - a).distance;
-  final t = ((point - a).dx * ab.dx + (point - a).dy * ab.dy) / length2;
-  final clamped = t.clamp(0.0, 1.0);
-  return (point - (a + ab * clamped)).distance;
-}

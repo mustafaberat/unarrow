@@ -45,4 +45,29 @@ void main() {
 
     expect(find.byTooltip('Pause'), findsOneWidget);
   });
+
+  testWidgets('play screen fits a small phone', (tester) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(ArrowOutApp(services: await services()));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Skip'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Play'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byTooltip('Pause'), findsOneWidget);
+    expect(find.text('Level 1'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -99,13 +99,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         label: Text(_motionLabel(l10n, choice)),
                                         selected: settings.reduceMotion == choice,
                                         onSelected: (_) => settings.setReduceMotion(choice),
-                                        selectedColor: AppColors.blue,
+                                        selectedColor: AppColors.accent,
                                         backgroundColor: AppColors.background,
                                         checkmarkColor: AppColors.onAccent,
                                         labelStyle: TextStyle(
-                                          color: settings.reduceMotion == choice
-                                              ? AppColors.onAccent
-                                              : AppColors.ink,
+                                          color: settings.reduceMotion == choice ? AppColors.onAccent : AppColors.ink,
                                           fontWeight: FontWeight.w600,
                                         ),
                                         side: const BorderSide(color: AppColors.line),
@@ -133,9 +131,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             title: Text(l10n.settingsShowTips),
                             onTap: () {
                               settings.setOnboardingDone(false);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l10n.settingsTipsReset)),
-                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text(l10n.settingsTipsReset)));
                             },
                           ),
                         ],
@@ -153,12 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                       const SizedBox(height: 28),
-                      Center(
-                        child: Text(
-                          '${l10n.appTitle} · ${l10n.developer}',
-                          style: theme.bodySmall,
-                        ),
-                      ),
+                      Center(child: Text('${l10n.appTitle} · ${l10n.developer}', style: theme.bodySmall)),
                     ],
                   ),
                 ),
@@ -187,7 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           final selected = settings.language == code;
           return ListTile(
             title: Text(label),
-            trailing: selected ? const Icon(Icons.check_rounded, color: AppColors.blue) : null,
+            trailing: selected ? const Icon(Icons.check_rounded, color: AppColors.accent) : null,
             onTap: () {
               settings.setLanguage(code);
               Navigator.of(sheetContext).pop();
@@ -200,8 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             shrinkWrap: true,
             children: [
               option(null, l10n.settingsLanguageSystem),
-              for (final code in SettingsService.supportedLanguages)
-                option(code, SettingsService.languageNames[code]!),
+              for (final code in SettingsService.supportedLanguages) option(code, SettingsService.languageNames[code]!),
             ],
           ),
         );
@@ -212,9 +203,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _openPrivacy(BuildContext context) async {
     final opened = await launchUrl(Uri.parse(AppIdentity.privacyUrl), mode: LaunchMode.externalApplication);
     if (!opened && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).openFailed)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).openFailed)));
     }
   }
 }

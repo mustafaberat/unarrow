@@ -287,66 +287,66 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin, 
             children: [
               Column(
                 children: [
-                  SizedBox(
-                    height: 52,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Stack(
-                        alignment: Alignment.center,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(2, 2, 4, 0),
+                    child: SizedBox(
+                      height: 52,
+                      child: Row(
                         children: [
-                          Text(l10n.levelLabel(_index + 1), style: theme.titleLarge),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: IconButton(
-                              onPressed: _busy && !_paused ? null : () => setState(() => _paused = true),
-                              icon: const Icon(Icons.pause_rounded),
-                              tooltip: l10n.pause,
-                            ),
+                          IconButton(
+                            onPressed: _busy && !_paused ? null : () => setState(() => _paused = true),
+                            icon: const Icon(Icons.chevron_left_rounded, size: 32),
+                            tooltip: l10n.pause,
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 12),
+                          Expanded(
+                            child: Center(
                               child: Hearts(count: session.hearts, label: l10n.hearts(session.hearts)),
                             ),
                           ),
+                          _HintButton(enabled: session.hints > 0, tooltip: l10n.hint, onPressed: _hint),
                         ],
                       ),
                     ),
                   ),
+                  Text(l10n.levelLabel(_index + 1), style: theme.titleLarge),
+                  const SizedBox(height: 8),
                   Expanded(
                     child: ClipRect(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
+                        padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
                         child: Center(
-                          child: BoardFit(
-                            cols: session.level.cols,
-                            rows: session.level.rows,
-                            child: ArrowBoard(
-                              level: session.level,
-                              removed: session.removed,
-                              exitingId: _exitingId,
-                              exitDir: _exitDir,
-                              exitT: reduce ? (_exitingId == null ? 0 : 1) : Curves.easeIn.transform(_exit.value),
-                              bumpingId: _bumpingId,
-                              bumpDir: _bumpDir,
-                              bumpT: _bump.value,
-                              hintId: _hintId,
-                              hintT: reduce ? 1 : _hintPulse.value,
-                              onTap: _tap,
-                              labelFor: _label,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: AppColors.board,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: const [
+                                BoxShadow(color: Color(0x2A6A5344), blurRadius: 28, offset: Offset(10, 16)),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: BoardFit(
+                                cols: session.level.cols,
+                                rows: session.level.rows,
+                                child: ArrowBoard(
+                                  level: session.level,
+                                  removed: session.removed,
+                                  exitingId: _exitingId,
+                                  exitDir: _exitDir,
+                                  exitT: reduce ? (_exitingId == null ? 0 : 1) : Curves.easeIn.transform(_exit.value),
+                                  bumpingId: _bumpingId,
+                                  bumpDir: _bumpDir,
+                                  bumpT: _bump.value,
+                                  hintId: _hintId,
+                                  hintT: reduce ? 1 : _hintPulse.value,
+                                  onTap: _tap,
+                                  labelFor: _label,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 18),
-                    child: _HintButton(
-                      enabled: session.hints > 0,
-                      tooltip: l10n.hint,
-                      onPressed: _hint,
                     ),
                   ),
                 ],
@@ -379,10 +379,7 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin, 
         child: ColoredBox(
           color: AppColors.scrim,
           child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 360),
-              child: child,
-            ),
+            child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 360), child: child),
           ),
         ),
       ),
@@ -447,21 +444,15 @@ class _HintButton extends StatelessWidget {
       button: true,
       label: tooltip,
       child: Material(
-        color: AppColors.surface,
+        color: AppColors.transparent,
         shape: const CircleBorder(),
-        elevation: 1,
-        shadowColor: const Color(0x22000000),
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onPressed,
           child: SizedBox(
             width: AppDimens.hintSize,
             height: AppDimens.hintSize,
-            child: Icon(
-              Icons.lightbulb_outline_rounded,
-              color: enabled ? AppColors.blue : AppColors.faint,
-              size: 30,
-            ),
+            child: CustomPaint(painter: _ClayBulbPainter(enabled: enabled)),
           ),
         ),
       ),
@@ -469,14 +460,61 @@ class _HintButton extends StatelessWidget {
   }
 }
 
+class _ClayBulbPainter extends CustomPainter {
+  const _ClayBulbPainter({required this.enabled});
+
+  final bool enabled;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final ink = enabled ? AppColors.ink : AppColors.faint;
+    final fill = enabled ? AppColors.arrow : AppColors.board;
+    final w = size.width;
+    final h = size.height;
+    final bulb = Rect.fromCenter(center: Offset(w * 0.5, h * 0.40), width: w * 0.46, height: h * 0.46);
+    canvas.drawOval(
+      bulb.shift(const Offset(0.6, 1.8)),
+      Paint()
+        ..color = const Color(0x335C4636)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.8),
+    );
+    canvas.drawOval(bulb, Paint()..color = fill);
+    canvas.drawOval(
+      bulb,
+      Paint()
+        ..color = ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8,
+    );
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(w * 0.42, h * 0.33), width: w * 0.12, height: h * 0.08),
+      Paint()..color = Colors.white.withValues(alpha: enabled ? 0.85 : 0.35),
+    );
+    final neck = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: Offset(w * 0.5, h * 0.66), width: w * 0.20, height: h * 0.09),
+      const Radius.circular(2),
+    );
+    canvas.drawRRect(neck, Paint()..color = fill);
+    canvas.drawRRect(
+      neck,
+      Paint()
+        ..color = ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6,
+    );
+    final base = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: Offset(w * 0.5, h * 0.76), width: w * 0.26, height: h * 0.08),
+      const Radius.circular(2),
+    );
+    canvas.drawRRect(base, Paint()..color = ink);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ClayBulbPainter oldDelegate) => oldDelegate.enabled != enabled;
+}
+
 class _MenuCard extends StatelessWidget {
-  const _MenuCard({
-    required this.title,
-    required this.actions,
-    this.subtitle,
-    this.icon,
-    this.iconColor,
-  });
+  const _MenuCard({required this.title, required this.actions, this.subtitle, this.icon, this.iconColor});
 
   final String title;
   final String? subtitle;
@@ -499,19 +537,14 @@ class _MenuCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                Icon(icon, color: iconColor, size: 36),
-                const SizedBox(height: 8),
-              ],
+              if (icon != null) ...[Icon(icon, color: iconColor, size: 36), const SizedBox(height: 8)],
               Text(title, textAlign: TextAlign.center, style: theme.titleLarge),
               if (subtitle != null) ...[
                 const SizedBox(height: 6),
                 Text(subtitle!, textAlign: TextAlign.center, style: theme.bodyMedium),
               ],
               const SizedBox(height: 18),
-              ...actions.map(
-                (action) => SizedBox(width: double.infinity, child: action),
-              ),
+              ...actions.map((action) => SizedBox(width: double.infinity, child: action)),
             ],
           ),
         ),
